@@ -21,7 +21,8 @@ let package = Package(
         ),
         .testTarget(
             name: "MoleKitTests",
-            dependencies: ["MoleKit"]
+            dependencies: ["MoleKit"],
+            exclude: ["Fixtures"]
         ),
     ]
 )
