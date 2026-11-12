@@ -96,3 +96,8 @@ mole_guidelines.md
 # Nix build output symlinks
 /result
 /result-*
+
+# MoleUI (app/) build output
+app/.build/
+app/build/
+app/.swiftpm/
