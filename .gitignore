@@ -101,3 +101,9 @@ mole_guidelines.md
 app/.build/
 app/build/
 app/.swiftpm/
+# SwiftPM run by mistake from the repo root
+/.build/
+/.swiftpm/
+
+# Agent scratch (subagent briefs, reports, review packages)
+.superpowers/
