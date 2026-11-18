@@ -35,8 +35,13 @@ struct ModuleHost: View {
     let module: Module
 
     var body: some View {
-        PlaceholderModule(module: module)
-            .id(module)
+        Group {
+            switch module {
+            case .dashboard: DashboardView()
+            default: PlaceholderModule(module: module)
+            }
+        }
+        .id(module)
     }
 }
 
