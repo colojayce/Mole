@@ -15,10 +15,9 @@ struct ExecutionDrawer: View {
                 TerminalHost(
                     spec: spec,
                     executable: installation.executableURL,
-                    environment: model.environment
-                ) { exitCode in
-                    runs.finish(spec.id, exitCode: exitCode)
-                }
+                    environment: model.environment,
+                    session: model.terminal
+                )
                 .id(spec.id)
                 .padding(10)
                 .background(Tokens.ink)
@@ -71,7 +70,8 @@ struct ExecutionDrawer: View {
             .buttonStyle(.plain)
             .foregroundStyle(runs.isRunning ? Tokens.line2 : Tokens.ink2)
             .disabled(runs.isRunning)
-            .keyboardShortcut(.cancelAction)
+            // Esc belongs to the palette while it is open.
+            .keyboardShortcut(model.isPaletteOpen ? nil : .cancelAction)
             .help(runs.isRunning ? "命令运行中，结束后才能关闭" : "关闭（Esc）")
         }
         .padding(.leading, 17)

@@ -19,7 +19,14 @@ final class AppModel {
     private(set) var environment: [String: String] = [:]
     let runner = DataRunner()
     let runs = CommandRunCoordinator()
+    @ObservationIgnored let terminal = TerminalSession()
     @ObservationIgnored private var toastTask: Task<Void, Never>?
+
+    init() {
+        terminal.onExit = { [weak self] id, exitCode in
+            self?.runs.finish(id, exitCode: exitCode)
+        }
+    }
 
     var installation: MoleInstallation? {
         if case .ready(let installation) = setup { installation } else { nil }
@@ -27,6 +34,12 @@ final class AppModel {
 
     /// Finds and verifies mo. Safe to call again after the user edits Settings.
     func bootstrap() async {
+        // Re-locating swaps the executable and environment under a live PTY.
+        guard !runs.isRunning else {
+            showToast("命令运行中，结束后再重新查找 mo")
+            runs.presentDrawer()
+            return
+        }
         status?.stop()
         status = nil
         setup = .locating
@@ -111,6 +124,7 @@ final class AppModel {
 
     func shutdown() {
         status?.stop()
+        terminal.terminate()
         runner.terminateAll()
     }
 }

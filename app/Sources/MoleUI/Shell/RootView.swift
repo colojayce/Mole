@@ -21,6 +21,10 @@ struct RootView: View {
         .animation(reduceMotion ? nil : Tokens.ease(0.32), value: model.runs.isDrawerPresented)
         .animation(reduceMotion ? nil : Tokens.ease(0.18), value: model.isPaletteOpen)
         .animation(reduceMotion ? nil : Tokens.ease(0.22), value: model.toast)
+        .onChange(of: model.isPaletteOpen) { _, open in
+            // Hand typing back to a visible terminal, which may be waiting at a sudo prompt.
+            if !open, model.runs.isDrawerPresented { model.terminal.focus() }
+        }
         .ignoresSafeArea()
     }
 
