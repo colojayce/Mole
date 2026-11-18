@@ -11,8 +11,13 @@ REPO_ROOT := $(abspath $(CURDIR)/..)
 build:
 	$(SWIFT) build -c $(CONFIG)
 
+# With CommandLineTools only, the default build system sometimes compiles a test
+# file without the swift-testing macro plugin ("plugin for module
+# 'TestingMacros' not found"); naming the plugin directory makes it reliable.
+TESTING_PLUGINS := $(abspath $(dir $(shell xcrun --find swift))/../lib/swift/host/plugins/testing)
+
 test:
-	$(SWIFT) test
+	$(SWIFT) test -Xswiftc -plugin-path -Xswiftc "$(TESTING_PLUGINS)"
 
 bundle: build
 	@bin_dir="$$($(SWIFT) build -c $(CONFIG) --show-bin-path)"; \
