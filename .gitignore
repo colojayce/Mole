@@ -107,3 +107,5 @@ app/.swiftpm/
 
 # Agent scratch (subagent briefs, reports, review packages)
 .superpowers/
+# Agent design specs and implementation plans (kept local, not part of the repo)
+docs/superpowers/
