@@ -19,6 +19,7 @@ struct MoleUIApp: App {
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1280, height: 800)
+        .commands { MoleCommands(model: model) }
 
         Settings {
             SettingsView().environment(model)

@@ -16,7 +16,11 @@ struct RootView: View {
         .padding(Tokens.Size.gutter)
         .background(Tokens.shell)
         .overlay(alignment: .trailing) { drawer }
+        .overlay(alignment: .top) { palette }
+        .overlay(alignment: .bottomLeading) { toast }
         .animation(reduceMotion ? nil : Tokens.ease(0.32), value: model.runs.isDrawerPresented)
+        .animation(reduceMotion ? nil : Tokens.ease(0.18), value: model.isPaletteOpen)
+        .animation(reduceMotion ? nil : Tokens.ease(0.22), value: model.toast)
         .ignoresSafeArea()
     }
 
@@ -38,6 +42,28 @@ struct RootView: View {
             ExecutionDrawer(runs: model.runs, installation: installation)
                 .padding(Tokens.Size.gutter)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder private var palette: some View {
+        if model.isPaletteOpen {
+            ZStack(alignment: .top) {
+                Tokens.ink.opacity(0.06)
+                    .contentShape(Rectangle())
+                    .onTapGesture { model.isPaletteOpen = false }
+                CommandPalette()
+                    .padding(.top, 108)
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.992, anchor: .top)))
+        }
+    }
+
+    @ViewBuilder private var toast: some View {
+        if let text = model.toast {
+            ToastView(text: text)
+                .padding(.leading, Tokens.Size.sidebarWidth + Tokens.Size.gutter * 3)
+                .padding(.bottom, 18)
+                .transition(.opacity.combined(with: .offset(y: 8)))
         }
     }
 }
