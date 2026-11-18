@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Uppercase group label: MEMORY, RECLAIMABLE, MONITOR.
@@ -13,19 +14,48 @@ struct SectionLabel: View {
 }
 
 /// 5 pt ink dot that breathes every 3.2 s while something is live.
+///
+/// The breath runs as a Core Animation layer animation in the render server.
+/// A SwiftUI `repeatForever` animation re-renders the view tree every display
+/// frame and held the Dashboard at 14–25% CPU (design budget < 5%).
 struct LiveDot: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ViewState private var bright = false
 
     var body: some View {
-        Circle()
-            .fill(Tokens.ink)
+        BreathingDotLayer(animated: !reduceMotion)
             .frame(width: 5, height: 5)
-            .opacity(bright ? 0.8 : 0.35)
-            .onAppear {
-                guard !reduceMotion else { return }
-                withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { bright = true }
-            }
+    }
+}
+
+private struct BreathingDotLayer: NSViewRepresentable {
+    let animated: Bool
+    private static let key = "breath"
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        view.wantsLayer = true
+        let layer = view.layer!
+        layer.backgroundColor = NSColor(Tokens.ink).cgColor
+        layer.cornerRadius = 2.5
+        layer.opacity = 0.35
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        guard let layer = view.layer else { return }
+        if !animated {
+            layer.removeAnimation(forKey: Self.key)
+        } else if layer.animation(forKey: Self.key) == nil {
+            let breath = CABasicAnimation(keyPath: "opacity")
+            breath.fromValue = 0.35
+            breath.toValue = 0.8
+            breath.duration = 1.6
+            breath.autoreverses = true
+            breath.repeatCount = .infinity
+            breath.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            breath.isRemovedOnCompletion = false
+            layer.add(breath, forKey: Self.key)
+        }
     }
 }
 
