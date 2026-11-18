@@ -149,6 +149,26 @@ struct SidebarFooter: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Rectangle().fill(Tokens.line).frame(height: 1)
+            if let spec = model.runs.current {
+                Button {
+                    model.runs.presentDrawer()
+                } label: {
+                    HStack(spacing: 6) {
+                        StatusGlyph(kind: model.runs.glyph)
+                        Text(spec.commandText)
+                            .font(.mono(10))
+                            .foregroundStyle(Tokens.ink2)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 4)
+                    .frame(height: 22)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help("打开执行抽屉")
+            }
             HStack(spacing: 6) {
                 if model.status?.phase == .live { LiveDot() }
                 Text(model.installation.map { "mo \($0.version)" } ?? "mo —")

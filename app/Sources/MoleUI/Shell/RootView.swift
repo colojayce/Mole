@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: Tokens.Size.gutter) {
@@ -14,6 +15,8 @@ struct RootView: View {
         }
         .padding(Tokens.Size.gutter)
         .background(Tokens.shell)
+        .overlay(alignment: .trailing) { drawer }
+        .animation(reduceMotion ? nil : Tokens.ease(0.32), value: model.runs.isDrawerPresented)
         .ignoresSafeArea()
     }
 
@@ -27,6 +30,14 @@ struct RootView: View {
             }
         case .ready:
             ModuleHost(module: model.selection)
+        }
+    }
+
+    @ViewBuilder private var drawer: some View {
+        if model.runs.isDrawerPresented, let installation = model.installation {
+            ExecutionDrawer(runs: model.runs, installation: installation)
+                .padding(Tokens.Size.gutter)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }
 }

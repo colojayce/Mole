@@ -16,6 +16,7 @@ final class AppModel {
     private(set) var status: StatusService?
     private(set) var environment: [String: String] = [:]
     let runner = DataRunner()
+    let runs = CommandRunCoordinator()
 
     var installation: MoleInstallation? {
         if case .ready(let installation) = setup { installation } else { nil }
@@ -36,6 +37,20 @@ final class AppModel {
         } catch {
             setup = .failed(String(describing: error))
         }
+    }
+
+    /// Starts a command in the execution drawer. Returns false when mo is not ready,
+    /// the spec is refused (for example `--permanent`), or another command is still running.
+    @discardableResult
+    func run(_ arguments: [String], title: String, mutatesSystem: Bool) -> Bool {
+        guard installation != nil,
+              let spec = CommandSpec(arguments: arguments, title: title, mutatesSystem: mutatesSystem)
+        else { return false }
+        guard runs.begin(spec) else {
+            runs.presentDrawer()
+            return false
+        }
+        return true
     }
 
     func shutdown() {

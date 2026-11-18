@@ -66,4 +66,16 @@ enum Module: String, CaseIterable, Identifiable {
     var shortcutDigit: Character {
         Character(String((Module.allCases.firstIndex(of: self) ?? 0) + 1))
     }
+
+    /// Read-only preview available before the module's own milestone lands.
+    var previewArguments: [String]? {
+        switch self {
+        case .clean: ["clean", "--dry-run"]
+        case .projects: ["purge", "--dry-run"]
+        case .installer: ["installer", "--dry-run"]
+        case .slim: ["slim", "--dry-run"]
+        case .optimize: ["optimize", "--dry-run"]
+        case .dashboard, .apps, .space, .history: nil
+        }
+    }
 }
